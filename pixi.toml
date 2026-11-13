@@ -1,0 +1,14 @@
+[workspace]
+name = "ringfour-testing"
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "linux-aarch64", "linux-64"]
+
+[dependencies]
+python = "3.12.*"
+uv = "*"
+
+[tasks]
+setup = "uv pip install --python $CONDA_PREFIX/bin/python -e ../ringfour-sdk -e ../ringfour-agent -e ."
+check = "./scripts/check-platform.sh"
+dashboard = "python integration/dashboard/server.py --port 8767"
+missions = "./scripts/check-missions.sh"

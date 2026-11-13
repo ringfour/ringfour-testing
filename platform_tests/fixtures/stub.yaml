@@ -1,0 +1,34 @@
+# Phase 1 stub profile: just enough to produce a capability report.
+# Not a real robot mapping yet — the full profile schema (spec section 22)
+# lands in Phase 2. The agent derives the capability list from which
+# top-level capability sections are present.
+name: stub-sim
+model: base101 stub (phase 1)
+version: "0"
+protocol: 1
+
+frames:
+  map: map
+  odom: odom
+  base: base_link
+
+mobility:
+  locomotion: differential
+
+# One group with NO tip. That is the point of it: `tip` is what gates IK,
+# so this exercises the ee_pose -> None path and the "a group need not be
+# reachable" branch of validation. A pointing group also needs no tool.
+groups:
+  head:
+    kind: pointing
+    pointing_frame: camera_link
+    controllers:
+      trajectory: /head_controller
+
+cameras:
+  base: {}
+
+lidar:
+  scan: /scan
+
+status: {}

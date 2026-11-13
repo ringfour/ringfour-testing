@@ -1,0 +1,65 @@
+# Synthetic schema fixtures for fake ROS adapters. No physical robot is described.
+name: fixture-arm
+model: synthetic arm schema fixture
+version: '0'
+protocol: 1
+frames:
+  map: map
+  odom: odom
+  base: base_link
+mobility:
+  locomotion: differential
+  cmd_vel: /fixture/cmd_vel
+  odom_topic: /fixture/odom
+  nav2_navigate_to_pose: /fixture/navigate
+  max_linear: 0.5
+  max_angular: 1.5
+cameras:
+  base:
+    rgb: /base_camera/image_raw
+    depth: /base_camera/depth_image
+    info: /base_camera/camera_info
+    frame: camera_optical_frame
+    optical: true
+  arm_wrist:
+    rgb: /fixture/wrist/image
+    info: /fixture/wrist/info
+    frame: arm_wrist_camera_optical_frame
+    optical: true
+lidar:
+  scan: /fixture/scan
+imu:
+  topic: /fixture/imu
+slam:
+  backend: slam_toolbox
+teleop:
+  max_watchdog: 1.0
+audit: {}
+watches: {}
+places: {}
+status:
+  battery: /fixture/battery
+safety:
+  stop_on_disconnect: true
+sensors: {}
+actions: {}
+groups:
+  arm:
+    kind: arm
+    tip: arm_wrist_flange
+    dof_mask:
+    - 1
+    - 1
+    - 1
+    - 1
+    - 1
+    - 0
+    controllers:
+      trajectory: arm_trajectory_controller
+      stream: arm_controller
+      tool: gripper_controller
+    tool:
+      type: fixture
+      joint: arm_6
+      open: 1.0
+      closed: 0.0

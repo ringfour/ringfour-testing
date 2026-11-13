@@ -1,0 +1,1590 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>e2e test env</title>
+    <link rel="stylesheet" href="/design-system/tokens.css" />
+    <link rel="stylesheet" href="/design-system/base.css" />
+    <link rel="stylesheet" href="/design-system/components.css" />
+    <link rel="stylesheet" href="/dashboard.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <img class="mark" src="/ringfour_logo.png" alt="Ringfour" />
+        <span>e2e test env</span>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Test console">
+        <button
+          class="tab"
+          id="tab-tests"
+          role="tab"
+          aria-selected="true"
+          aria-controls="view-tests"
+          data-view="tests"
+        >
+          Tests</button
+        ><button
+          class="tab"
+          id="tab-profile"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-profile"
+          data-view="profile"
+        >
+          Robot profile</button
+        ><button
+          class="tab"
+          id="tab-config"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-config"
+          data-view="config"
+        >
+          Test settings</button
+        ><button
+          class="tab"
+          id="tab-history"
+          role="tab"
+          aria-selected="false"
+          aria-controls="view-history"
+          data-view="history"
+        >
+          Previous runs
+        </button>
+      </nav>
+      <span class="server"><span class="dot"></span>Local console</span>
+    </header>
+    <main>
+      <div id="message" class="notice error" role="alert" hidden></div>
+      <section id="view-tests" role="tabpanel" aria-labelledby="tab-tests">
+        <div class="heading">
+          <div>
+            <h1>Tests</h1>
+            <p>Select a category to view its checks and results.</p>
+          </div>
+          <button id="targetbutton" class="targetbutton" data-view="profile">
+            Robot profile · not inspected
+          </button>
+        </div>
+        <div class="test-controls">
+          <select id="suite" hidden aria-hidden="true" tabindex="-1">
+            <option value="compatibility">Robot compatibility</option>
+          </select>
+          <label class="command-toggle"
+            ><input id="ack" type="checkbox" /><span
+              >Enable commands</span
+            ></label
+          >
+          <button
+            id="run"
+            class="button primary play-button"
+            aria-label="Run all tests"
+            title="Run all tests"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 4v16l13-8z" />
+            </svg>
+          </button>
+          <span id="run-scope" class="small muted">All tests</span>
+          <button id="cancel" class="button danger" disabled>
+            Cancel tests
+          </button>
+          <button class="textbutton controls-settings" data-view="config">
+            Test settings
+          </button>
+        </div>
+        <div class="layout">
+          <aside class="test-sidebar">
+            <section class="panel sidebar-panel">
+              <div class="panelhead"><h2>Suites</h2></div>
+              <nav id="suite-sidebar" class="suite-navigation" aria-label="Test suites"></nav>
+            </section>
+          </aside>
+          <aside class="test-sidebar category-sidebar">
+            <section class="panel sidebar-panel">
+              <div class="panelhead">
+                <h2>Categories</h2>
+              </div>
+              <nav
+                id="categories"
+                class="categories"
+                role="tablist"
+                aria-label="Test categories"
+                aria-orientation="vertical"
+              ></nav>
+              <div class="selection">
+                <b id="selectioncount">Loading checks…</b>
+                <p id="selectionnote" class="small">
+                  A check can belong to more than one category; it runs once.
+                </p>
+              </div>
+            </section>
+          </aside>
+          <div id="test-content" role="tabpanel" aria-labelledby="category-all">
+            <div class="category-heading">
+              <h2 id="categorytitle">All tests</h2>
+              <p id="categorydescription"></p>
+            </div>
+            <section class="panel">
+              <div class="panelhead">
+                <div>
+                  <h2 id="runstate">Test guide</h2>
+                  <div id="runmeta" class="runinfo">
+                    Read a check before running it.
+                  </div>
+                </div>
+                <div class="runactions">
+                  <div class="mode" role="group" aria-label="Test view">
+                    <button id="guide-mode" aria-pressed="true">
+                      Test guide</button
+                    ><button id="results-mode" aria-pressed="false">
+                      Results
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="stats" class="stats" hidden>
+                <button class="stat-card passed" data-result="passed">
+                  <span class="stat-icon" data-icon="passed"></span
+                  ><span><b id="passed">—</b><span>Passed</span></span>
+                </button>
+                <button class="stat-card failed" data-result="failures">
+                  <span class="stat-icon" data-icon="failed"></span
+                  ><span><b id="failed">—</b><span>Failed</span></span>
+                </button>
+                <button class="stat-card muted" data-result="notapplicable">
+                  <span class="stat-icon" data-icon="notapplicable"></span
+                  ><span
+                    ><b id="notapplicable">—</b
+                    ><span>Not applicable</span></span
+                  >
+                </button>
+                <button class="stat-card skipped" data-result="untested">
+                  <span class="stat-icon" data-icon="untested"></span
+                  ><span><b id="untested">—</b><span>Untested</span></span>
+                </button>
+                <div class="run-totals">
+                  <span id="completed">—</span><span id="elapsed">—</span
+                  ><span id="artifacts" class="links"></span>
+                </div>
+              </div>
+              <section
+                id="runningtest"
+                class="running-test"
+                aria-label="Current test"
+                hidden
+              >
+                <div class="running-head">
+                  <span class="live-indicator"></span
+                  ><span id="livephase">Running now</span
+                  ><button id="showcurrent" class="textbutton">
+                    Show test details
+                  </button>
+                </div>
+                <h3 id="livetitle"></h3>
+                <p id="liveinstance" class="small"></p>
+                <p id="livewhat"></p>
+                <p id="liveeffects" class="small"></p>
+                <progress
+                  id="liveprogress"
+                  max="1"
+                  value="0"
+                  aria-label="Run progress"
+                ></progress
+                ><span id="livecount" class="small muted"></span>
+              </section>
+              <div id="categoryprogress" class="categoryprogress" hidden></div>
+              <div class="toolbar">
+                <input
+                  id="search"
+                  type="search"
+                  aria-label="Search checks and descriptions"
+                  placeholder="Search checks, descriptions, or settings"
+                /><select
+                  id="categoryfilter"
+                  aria-label="Filter by category"
+                  hidden
+                >
+                  <option value="all">All categories</option></select
+                ><select id="filter" aria-label="Filter results">
+                  <option value="all">All results</option>
+                  <option value="failures">Failures & errors</option>
+                  <option value="passed">Passed</option>
+                  <option value="notapplicable">Unsupported</option>
+                  <option value="untested">Untested</option>
+                  <option value="pending">Waiting / not run</option>
+                </select>
+              </div>
+              <div id="librarynote" class="librarynote">
+                Checks expand for each named camera, joint group, or sensor on
+                the selected robot.
+              </div>
+              <div class="tablewrap">
+                <table id="table">
+                  <thead>
+                    <tr>
+                      <th id="statusheading">TYPE</th>
+                      <th>CHECK</th>
+                      <th id="timeheading">DETAILS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cases"></tbody>
+                </table>
+                <div id="empty" class="empty" hidden>
+                  <strong>No checks to show</strong>
+                  <p>Select a category or change the filters.</p>
+                </div>
+              </div>
+            </section>
+            <section id="outputpanel" class="panel logpanel" hidden>
+              <details>
+                <summary>
+                  Runner output <span id="current" class="muted small"></span>
+                </summary>
+                <pre id="log" class="technical"></pre>
+              </details>
+            </section>
+          </div>
+        </div>
+      </section>
+      <section
+        id="view-profile"
+        role="tabpanel"
+        aria-labelledby="tab-profile"
+        hidden
+      >
+        <div class="heading">
+          <div>
+            <h1>Robot profile</h1>
+            <p>
+              Inspect the loaded robot, review its configuration, and edit an
+              original YAML.
+            </p>
+          </div>
+          <button class="button" data-view="tests">Back to tests</button>
+        </div>
+        <div class="profilelayout">
+          <div>
+            <section class="panel">
+              <div class="panelhead">
+                <h2>Running robot</h2>
+                <span id="connection" class="small muted">Not inspected</span>
+              </div>
+              <div class="body">
+                <label class="field" for="uri">Agent address</label
+                ><input
+                  id="uri"
+                  type="text"
+                  value="ws://127.0.0.1:10101"
+                  spellcheck="false"
+                /><label class="field" for="profile"
+                  >Profile to compare or edit</label
+                ><select id="profile"></select>
+                <button id="load-profile" class="button" style="margin-top: 12px">
+                  Load YAML from file
+                </button>
+                <input id="profile-file" type="file" accept=".yaml,.yml" hidden />
+                <div class="movement-tolerance" style="margin-top: 20px">
+                  <label class="field" for="movement-tolerance">Movement precision tolerance</label>
+                  <div class="row" style="align-items: center; gap: 12px">
+                    <input id="movement-tolerance" type="range" min="1" max="5" step="0.25" value="1" disabled aria-describedby="movement-tolerance-preview movement-tolerance-note" style="flex: 1; min-width: 0; accent-color: var(--green)" />
+                    <output id="movement-tolerance-value" for="movement-tolerance">1×</output>
+                  </div>
+                  <p id="movement-tolerance-preview" class="small"></p>
+                  <p class="small">Scales spin drift, loop closure and rotation error limits. Speeds, minimum movement and stopping limits stay fixed.</p>
+                  <p id="movement-tolerance-note" class="small" role="status">Inspect the running robot to load its saved tolerance.</p>
+                </div>
+                <p class="small" style="margin: 14px 0">
+                  Test commands and expected results are configured in
+                  <button class="textbutton" data-view="config">
+                    Test settings</button
+                  >.
+                </p>
+                <button id="inspect" class="button primary" style="width: 100%">
+                  Inspect running robot
+                </button>
+                <div id="robotinfo">
+                  <p class="small" style="margin-top: 15px">
+                    Inspect to see the loaded name, capabilities, cameras, and
+                    joint groups.
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+          <div>
+            <section class="panel">
+              <div class="panelhead">
+                <h2 id="yamlsummary">Loaded handshake snapshot</h2>
+                <span id="editorstate" class="small muted">Read-only</span>
+              </div>
+              <div class="body" style="padding-bottom: 12px">
+                <p id="editornote" class="small">
+                  Choose an original YAML file to edit. A handshake snapshot
+                  omits the robot's ROS interface configuration.
+                </p>
+                <div id="fieldhint" class="notice" hidden></div>
+              </div>
+              <textarea
+                id="yaml"
+                class="editor"
+                aria-label="Profile YAML"
+                spellcheck="false"
+                disabled
+              ></textarea>
+              <div class="editoractions">
+                <div class="row">
+                  <button id="validate" class="button" disabled>
+                    Validate & review changes</button
+                  ><button id="save" class="button primary" disabled>
+                    Save profile</button
+                  ><button id="discard" class="textbutton" disabled>
+                    Reload file
+                  </button>
+                </div>
+                <span id="reviewstate" class="small muted"
+                  >No draft reviewed</span
+                >
+              </div>
+              <div
+                id="profilenotice"
+                class="notice"
+                style="margin: 0 19px 15px"
+                role="status"
+                hidden
+              ></div>
+              <details id="diffpanel" style="margin: 0 19px 18px" hidden>
+                <summary>Changes to the saved file</summary>
+                <pre id="diff" class="review"></pre>
+              </details>
+            </section>
+            <p class="small">
+              Saving creates a backup and updates the selected YAML. Reload the
+              agent with that file, inspect again, and rerun the affected
+              categories. Tests use the configuration captured when their run
+              started.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section
+        id="view-config"
+        role="tabpanel"
+        aria-labelledby="tab-config"
+        hidden
+      >
+        <div class="heading">
+          <div>
+            <h1>Test settings</h1>
+            <p>Defaults are ready to run. Edit only what you need.</p>
+          </div>
+          <button class="button" data-view="tests">Back to tests</button>
+        </div>
+        <div class="settings-actions">
+          <span id="settings-robot" class="small muted"
+            >Built-in movement defaults</span
+          ><button id="settings-reload" class="button">Reload</button
+          ><button id="settings-reset" class="button">Restore defaults</button
+          ><button id="settings-save" class="button primary" disabled>
+            Save changes
+          </button>
+        </div>
+        <div id="settings-notice" class="notice" role="status" hidden></div>
+        <label class="command-toggle" style="margin: 16px 0"><input id="settings-debug" type="checkbox" checked />Enable debug checks</label>
+        <p class="small">Debug checks are enabled by default. Emergency-stop injection also requires commands enabled.</p>
+        <div id="simple-settings" class="simple-settings"></div>
+        <div id="test-requirements" class="simple-settings"></div>
+      </section>
+      <section
+        id="view-history"
+        role="tabpanel"
+        aria-labelledby="tab-history"
+        hidden
+      >
+        <div class="heading">
+          <div>
+            <h1>Previous runs</h1>
+            <p>
+              Open a run to inspect its results, descriptions, and failure
+              guidance.
+            </p>
+          </div>
+          <button class="button" data-view="tests">Back to tests</button>
+        </div>
+        <section class="panel">
+          <div class="panelhead">
+            <h2>Saved runs</h2>
+            <span id="historycount" class="small muted">0</span>
+          </div>
+          <div class="historywrap">
+            <table class="historytable">
+              <thead>
+                <tr>
+                  <th>WHEN</th>
+                  <th>ROBOT</th>
+                  <th>CATEGORIES</th>
+                  <th>RESULT</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="history"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="/preparation.js"></script>
+    <script src="/requirements.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) =>
+        String(s ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      function settingsNotice(text, error = false) {
+        $("settings-notice").textContent = text;
+        $("settings-notice").className =
+          "notice " + (error ? "error" : "success");
+        $("settings-notice").hidden = !text;
+      }
+      function renderSettings() {
+        const specs = [
+          {
+            id: "teleop",
+            label: "Straight drive",
+            description:
+              "Drive forward, confirm movement, and check stopping and watchdog behavior.",
+            fields: config.drive_fields,
+          },
+          ...config.movement_profiles,
+        ];
+        $("simple-settings").innerHTML = specs
+          .map((p) => {
+            const data =
+              settingsDraft[p.id === "teleop" ? "teleop" : "movement_profiles"];
+            const values = p.id === "teleop" ? data : data?.[p.id];
+            const fields = p.fields
+              .map(([key, label, defaultValue]) => {
+                const value = key.startsWith("command.")
+                  ? (values?.command?.[key.split(".")[1]] ?? defaultValue)
+                  : (values?.[key] ?? defaultValue);
+                return `<label class="field">${esc(label)}<input type="number" step="any" data-profile="${p.id}" data-setting="${key}" value="${esc(value)}"></label>`;
+              })
+              .join("");
+            const summary =
+              p.id === "teleop"
+                ? `${values?.command?.linear ?? 0.3} m/s · ${values?.duration ?? 2} seconds · at least ${values?.min_distance ?? 0.2} m travel`
+                : p.id === "braking"
+                  ? `${values?.linear ?? 0.3} m/s · ${values?.duration ?? 2} seconds · stop within ${values?.max_braking_time ?? 2.5} seconds`
+                  : p.id === "figure_eight"
+                    ? `${values?.linear ?? 0.3} m/s · two loops · radius ${Math.abs((values?.linear ?? 0.3) / (values?.angular ?? 0.6)).toFixed(2)} m`
+                    : `${values?.turns ?? 1} revolution · ${values?.angular ?? 0.6} rad/s`;
+            return `<section class="panel settings-card"><div class="body"><div class="settings-card-title">${icon(p.id === "teleop" ? "movement" : p.id === "braking" ? "safety" : p.id === "figure_eight" ? "mapping" : "kinematics")}<h2>${esc(p.label)}</h2></div><p>${esc(p.description)}</p><p class="settings-summary">${esc(summary)}</p><details><summary>Edit settings</summary><div class="settings-fields">${fields}</div></details></div></section>`;
+          })
+          .join("");
+        if (settingsDraft.navigation) {
+          const nav = settingsDraft.navigation;
+          const fields = config.navigation_fields.map(([key,label,value]) =>
+            `<label class="field">${esc(label)}<input type="number" step="any" data-profile="navigation" data-setting="${key}" value="${nav[key] ?? value}" /></label>`
+          ).join("");
+          $("simple-settings").insertAdjacentHTML("beforeend", `<section class="panel settings-card"><div class="body"><div class="settings-card-title">${icon("mapping")}<h2>Navigation goals</h2></div><p>Choose nearby goals from connected known-free map cells. Unknown cells and obstacles are excluded, with clearance along the grid route. Nav2 remains responsible for actual path planning and obstacle avoidance.</p><label class="command-toggle"><input type="checkbox" data-profile="navigation" data-setting="auto" ${nav.auto ? "checked" : ""} />Choose goals from the live map</label><details><summary>Edit settings</summary><div class="settings-fields">${fields}</div></details><button id="navigation-preview" class="button" style="margin-top: 16px">Preview goals</button><p id="navigation-preview-note" class="small" role="status">Clearance is an editable test setting; choose it for your robot's footprint.</p></div></section>`);
+        }
+        $("settings-debug").checked = settingsDraft.debug ?? true;
+      }
+      function initialSettings() {
+        settingsDraft = {
+          teleop: structuredClone(config.drive_defaults),
+          movement_profiles: Object.fromEntries(
+            config.movement_profiles.map((p) => [
+              p.id,
+              Object.fromEntries(
+                p.fields.map(([key, label, value]) => [key, value]),
+              ),
+            ]),
+          ),
+        };
+        renderSettings();
+      }
+      async function loadSettings() {
+        const uri = $("uri").value.trim(), selectedProfile = $("profile").value;
+        const serial = ++settingsLoadSerial;
+        const r = await api("/api/test-settings", { uri, profile: selectedProfile });
+        if (serial !== settingsLoadSerial || uri !== $("uri").value.trim() || selectedProfile !== $("profile").value) return;
+        settingsUri = uri;
+        settingsSha = r.sha;
+        settingsDraft = structuredClone(r.settings);
+        settingsMeta = r.requirements;
+        if (preparationBundle && preparationBundle.description_sha !== settingsMeta.description_sha) { preparationBundle = null; preparationJob = null; }
+        groupReadings = {};
+        Object.keys(groupPreviews).forEach((key) => delete groupPreviews[key]);
+        renderRequirements();
+        $("settings-robot").textContent =
+          r.robot +
+          (r.supported
+            ? " · " + (r.sha ? "Saved settings" : "Using defaults")
+            : " · Movement interface unavailable");
+        $("settings-save").disabled = true;
+        $("settings-reset").disabled = !r.supported;
+        renderSettings();
+        settingsNotice("");
+        syncMovementTolerance(r.supported);
+      }
+      function tolerancePreview() {
+        const factor = Number($("movement-tolerance").value);
+        $("movement-tolerance-value").textContent = `${factor}×`;
+        const recipes = settingsDraft.movement_profiles || {};
+        const spin = recipes.odometry_spin?.max_drift ?? 0.1;
+        const loop = recipes.figure_eight?.position_tolerance ?? 0.2;
+        $("movement-tolerance-preview").textContent = `Spin drift: ${(spin * factor * 100).toFixed(1)} cm · Loop closure: ${(loop * factor * 100).toFixed(1)} cm`;
+      }
+      function syncMovementTolerance(supported) {
+        $("movement-tolerance").value = settingsDraft.movement_tolerance ?? 1;
+        $("movement-tolerance").disabled = !supported || !inspected;
+        $("movement-tolerance-note").textContent = supported
+          ? "Saved per robot. Applies to the next run."
+          : "This robot does not expose the movement test interface.";
+        tolerancePreview();
+      }
+      $("movement-tolerance").oninput = tolerancePreview;
+      $("movement-tolerance").onchange = () => perform(async () => {
+        const uri = $("uri").value.trim();
+        const factor = Number($("movement-tolerance").value);
+        $("movement-tolerance").disabled = true;
+        $("movement-tolerance-note").textContent = "Saving…";
+        try {
+          const r = await api("/api/test-settings/save", {
+            uri, profile: $("profile").value, settings: { movement_tolerance: factor }, expected_sha: settingsSha,
+          });
+          if (uri !== $("uri").value.trim() || !inspected) return;
+          settingsSha = r.sha;
+          settingsDraft.movement_tolerance = r.settings.movement_tolerance;
+          syncMovementTolerance(r.supported);
+        } catch (e) {
+          $("movement-tolerance-note").textContent = e.message;
+          $("movement-tolerance").value = settingsDraft.movement_tolerance ?? 1;
+          tolerancePreview();
+          throw e;
+        } finally {
+          if (uri === $("uri").value.trim() && inspected) $("movement-tolerance").disabled = false;
+        }
+      });
+      async function settingsAction(fn) {
+        try {
+          await fn();
+        } catch (e) {
+          settingsNotice(e.message, true);
+        }
+      }
+      $("simple-settings").oninput = (e) => {
+        const input = e.target.closest("[data-setting]");
+        if (!input) return;
+        const p = input.dataset.profile;
+        let values;
+        if (p === "teleop") values = settingsDraft.teleop;
+        else if (p === "navigation") values = settingsDraft.navigation;
+        else
+          values = settingsDraft.movement_profiles[p] ||= Object.fromEntries(
+            config.movement_profiles
+              .find((x) => x.id === p)
+              .fields.map(([k, l, v]) => [k, v]),
+          );
+        const key = input.dataset.setting;
+        if (key === "auto") values.auto = input.checked;
+        else if (key.startsWith("command."))
+          values.command[key.split(".")[1]] = Number(input.value);
+        else values[key] = Number(input.value);
+        $("settings-save").disabled = false;
+        settingsNotice("Unsaved changes");
+      };
+      $("simple-settings").onclick = (e) => {
+        if (e.target.id !== "navigation-preview") return;
+        settingsAction(async () => {
+          const button = e.target;
+          button.disabled = true;
+          try {
+            const r = await api("/api/navigation/preview", { uri: $("uri").value.trim(), profile: $("profile").value, navigation: settingsDraft.navigation });
+            $("navigation-preview-note").textContent = `Map clearance ${r.clearance} m · ` + r.goals.map((g) => `${g.frame}: (${g.x.toFixed(2)}, ${g.y.toFixed(2)})`).join(" · ");
+          } finally { button.disabled = false; }
+        });
+      };
+      $("settings-debug").onchange = () => {
+        settingsDraft.debug = $("settings-debug").checked;
+        $("settings-save").disabled = false;
+        settingsNotice("Unsaved changes");
+      };
+      $("settings-reload").onclick = () => settingsAction(loadSettings);
+      async function persistSettings(reset = false) {
+        const r = await api("/api/test-settings/save", {
+          uri: $("uri").value.trim(),
+          profile: $("profile").value,
+          settings: Object.fromEntries(Object.entries(settingsDraft).filter(([key]) => !["version", "profile"].includes(key))),
+          expected_sha: settingsSha,
+          reset,
+        });
+        settingsUri = $("uri").value.trim();
+        settingsSha = r.sha;
+        settingsDraft = structuredClone(r.settings);
+        settingsMeta = r.requirements;
+        renderRequirements();
+        renderSettings();
+        syncMovementTolerance(r.supported);
+        $("settings-save").disabled = true;
+        $("settings-robot").textContent = r.robot + " · Saved settings";
+        settingsNotice(
+          reset
+            ? "Defaults restored."
+            : "Settings saved. They apply to the next run.",
+        );
+      }
+      $("settings-save").onclick = () =>
+        settingsAction(() => persistSettings());
+      $("settings-reset").onclick = () =>
+        settingsAction(() => persistSettings(true));
+      function icon(name) {
+        const paths = {
+          all: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+          movement: '<path d="M4 12h16m-5-5 5 5-5 5M9 7l-5 5 5 5"/>',
+          manipulation:
+            '<path d="M4 21h16M6 21v-5l6-5-3-6 4-2 5 7-3 5h-3v6M18 10l3-2m-3 2 3 3"/><circle cx="12" cy="11" r="2"/>',
+          cameras:
+            '<rect x="3" y="6" width="18" height="14" rx="2"/><path d="m8 6 2-3h4l2 3"/><circle cx="12" cy="13" r="4"/>',
+          sensors: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+          safety: '<path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6zM8 12l3 3 5-6"/>',
+          mapping:
+            '<path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16m6-14v16"/>',
+          profile:
+            '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/>',
+          description:
+            '<path d="m12 2 9 5v10l-9 5-9-5V7zm0 10 9-5m-9 5L3 7m9 5v10"/>',
+          kinematics:
+            '<circle cx="5" cy="18" r="3"/><circle cx="12" cy="10" r="3"/><circle cx="20" cy="5" r="2"/><path d="m7 16 3-4m4-4 4-2M2 22h9"/>',
+          connection:
+            '<path d="m8 12 4-4m-5 9-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2-1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(3 -1)"/>',
+          sdk: '<path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18"/>',
+          passed: '<circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>',
+          failed: '<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/>',
+          notapplicable: '<circle cx="12" cy="12" r="9"/><path d="M7 12h10"/>',
+          untested:
+            '<circle cx="12" cy="12" r="9"/><path d="M9 8a3 3 0 0 1 6 0c0 2-3 2-3 5m0 3h.01"/>',
+        };
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.all}</svg>`;
+      }
+      let config,
+        selectedCategory = "all",
+        runId = null,
+        snapshot = null,
+        active = null,
+        mode = "guide",
+        expanded = new Set(),
+        casesSignature = null,
+        busy = false,
+        polling = false,
+        runs = [],
+        profileSha = null,
+        originalYaml = "",
+        reviewedYaml = null,
+        inspected = null,
+        settingsSha = null,
+        settingsUri = null,
+        settingsLoadSerial = 0,
+        settingsDraft = {},
+        settingsMeta = null,
+        groupReadings = {};
+        Object.keys(groupPreviews).forEach((key) => delete groupPreviews[key]);
+      async function api(path, data) {
+        const r = await fetch(
+          path,
+          data === undefined
+            ? {}
+            : {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+              },
+        );
+        const value = await r.json();
+        if (!r.ok) throw Error(value.error || r.statusText);
+        return value;
+      }
+      function message(text) {
+        $("message").textContent = text || "";
+        $("message").hidden = !text;
+      }
+      async function perform(fn) {
+        message("");
+        try {
+          await fn();
+        } catch (e) {
+          message(e.message);
+        }
+      }
+      function switchView(view, reload = true) {
+        for (const name of ["tests", "profile", "config", "history"]) {
+          $("view-" + name).hidden = name !== view;
+          $("tab-" + name).setAttribute("aria-selected", String(name === view));
+        }
+        if (view === "config" && reload) settingsAction(loadSettings);
+        message("");
+      }
+      document.addEventListener("click", (e) => {
+        const target = e.target.closest("[data-view]");
+        if (target) switchView(target.dataset.view);
+      });
+      document.querySelector(".tabs").addEventListener("keydown", (e) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+        e.preventDefault();
+        const tabs = [...document.querySelectorAll(".tab")],
+          i = tabs.indexOf(document.activeElement);
+        const next =
+          e.key === "Home"
+            ? 0
+            : e.key === "End"
+              ? tabs.length - 1
+              : (i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) %
+                tabs.length;
+        tabs[next].focus();
+        switchView(tabs[next].dataset.view);
+      });
+      function selectedCategories() {
+        return selectedCategory === "all"
+          ? config.categories.map((c) => c.id)
+          : [selectedCategory];
+      }
+      function chooseCategory(id) {
+        if (id === "missions") $("suite").value = "missions";
+        else if (id === "sdk") $("suite").value = "sdk";
+        else if (id !== "all" && ["sdk", "missions"].includes($("suite").value)) $("suite").value = "compatibility";
+        selectedCategory = id;
+        $("test-content").setAttribute("aria-labelledby", "category-" + id);
+        $("categoryfilter").value = id;
+        expanded.clear();
+        document.querySelectorAll(".category").forEach((button) => {
+          const selected = button.dataset.category === id;
+          button.setAttribute("aria-selected", String(selected));
+          button.tabIndex = selected ? 0 : -1;
+        });
+        selectionChanged();
+        drawCases();
+      }
+      function selectedGuides() {
+        const selected = new Set(selectedCategories());
+        return (config?.tests || []).filter((g) =>
+          ($("suite").value === "all" || g.suite === $("suite").value) && g.categories.some((c) => selected.has(c)),
+        );
+      }
+      function request() {
+        return {
+          uri: $("uri").value.trim(),
+          profile: $("profile").value,
+          categories: selectedCategories(),
+          suite: $("suite").value,
+          motion_ack: $("ack").checked,
+        };
+      }
+      function categoryLabel(id) {
+        return config?.categories.find((c) => c.id === id)?.label || id;
+      }
+      function chooseSuite(id) {
+        $("suite").value = id;
+        chooseCategory("all");
+        draw();
+      }
+      function renderSuiteSidebar() {
+        const icons = {compatibility:"connection", qualification:"movement", diagnostics:"description", regression:"safety", sdk:"sdk", all:"all"};
+        $("suite-sidebar").innerHTML = config.test_suites.map((suite) => `<button class="suite-option" data-suite="${esc(suite.id)}" aria-pressed="${suite.id === $("suite").value}">${icon(icons[suite.id])}<span><strong>${esc(suite.label)}</strong><span class="suite-description">${esc(suite.description)}</span></span></button>`).join("");
+      }
+      $("suite-sidebar").onclick = (e) => {
+        const button = e.target.closest("[data-suite]");
+        if (button) chooseSuite(button.dataset.suite);
+      };
+      $("suite-sidebar").onkeydown = (e) => {
+        if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return;
+        e.preventDefault();
+        const buttons = [...$("suite-sidebar").querySelectorAll("button")];
+        const index = buttons.indexOf(document.activeElement);
+        const next = e.key === "Home" ? 0 : e.key === "End" ? buttons.length - 1 : (index + (e.key === "ArrowDown" ? 1 : -1) + buttons.length) % buttons.length;
+        buttons[next].focus(); chooseSuite(buttons[next].dataset.suite);
+      };
+      function selectionChanged() {
+        document.querySelectorAll("[data-suite]").forEach((button)=>button.setAttribute("aria-pressed",String(button.dataset.suite === $("suite").value)));
+        const tests = selectedGuides(),
+          robot = tests.filter((g) => g.scope === "robot"),
+          opt = tests.filter((g) => g.requires_motion);
+        $("selectioncount").textContent =
+          `${tests.length} unique checks selected`;
+        $("selectionnote").textContent =
+          `${robot.length} robot checks${tests.length - robot.length ? " + " + (tests.length - robot.length) + " offline checks" : ""}. ${opt.length} need commands enabled. Shared checks run once.`;
+        document.querySelectorAll(".category").forEach((button) => {
+          const id = button.dataset.category;
+          const guides = (config?.tests || []).filter((g) => ($("suite").value === "all" || g.suite === $("suite").value) && (id === "all" || g.categories.includes(id)));
+          button.querySelector(".count").textContent = guides.length;
+        });
+        const runLabel =
+          selectedCategory === "all"
+            ? "Run all tests"
+            : "Run " + categoryLabel(selectedCategory) + " tests";
+        $("run").setAttribute("aria-label", runLabel);
+        $("run").title = runLabel;
+        $("run-scope").textContent =
+          selectedCategory === "all"
+            ? (config.test_suites.find((s) => s.id === $("suite").value)?.label || "Robot compatibility")
+            : categoryLabel(selectedCategory);
+        $("categorytitle").textContent =
+          selectedCategory === "all"
+            ? (config.test_suites.find((s) => s.id === $("suite").value)?.label || "Robot compatibility")
+            : categoryLabel(selectedCategory);
+        $("categorydescription").textContent =
+          selectedCategory === "all"
+            ? (config.test_suites.find((s) => s.id === $("suite").value)?.description || "")
+            : config.categories.find((c) => c.id === selectedCategory)
+                ?.description;
+        updateButtons();
+        if (mode === "guide") drawCases();
+      }
+      $("suite").onchange = () => chooseSuite($("suite").value);
+      $("categories").onclick = (e) => {
+        const button = e.target.closest("[data-category]");
+        if (button) {
+          if (button.dataset.category === "sdk") $("suite").value = "sdk";
+          else if (button.dataset.category !== "all" && $("suite").value === "sdk") $("suite").value = "compatibility";
+          chooseCategory(button.dataset.category);
+        }
+      };
+      $("categories").onkeydown = (e) => {
+        if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return;
+        e.preventDefault();
+        const buttons = [...$("categories").querySelectorAll(".category")];
+        const index = buttons.indexOf(document.activeElement);
+        const next =
+          e.key === "Home"
+            ? 0
+            : e.key === "End"
+              ? buttons.length - 1
+              : (index + (e.key === "ArrowDown" ? 1 : -1) + buttons.length) %
+                buttons.length;
+        chooseCategory(buttons[next].dataset.category);
+        buttons[next].focus();
+      };
+      function setMode(value) {
+        mode = value;
+        expanded.clear();
+        $("guide-mode").setAttribute("aria-pressed", String(mode === "guide"));
+        $("results-mode").setAttribute(
+          "aria-pressed",
+          String(mode === "results"),
+        );
+        $("stats").hidden = mode !== "results" || !snapshot;
+        $("runningtest").hidden =
+          mode !== "results" || snapshot?.status !== "running";
+        $("categoryprogress").hidden = mode !== "results" || !snapshot;
+        $("outputpanel").hidden = mode !== "results" || !snapshot;
+        $("filter").disabled = mode === "guide";
+        $("statusheading").textContent = mode === "guide" ? "TYPE" : "RESULT";
+        $("timeheading").textContent = mode === "guide" ? "DETAILS" : "TIME";
+        draw();
+      }
+      $("guide-mode").onclick = () => setMode("guide");
+      $("results-mode").onclick = () => setMode("results");
+      function invalidate() {
+        inspected = null;
+        $("movement-tolerance").disabled = true;
+        $("movement-tolerance-note").textContent = "Inspect the running robot to load its saved tolerance.";
+        $("connection").textContent = "Not inspected";
+        $("targetbutton").textContent = "Robot profile · inspect after changes";
+        $("robotinfo").innerHTML =
+          '<p class="small" style="margin-top:15px">Settings changed. Inspect the running robot again.</p>';
+      }
+      function profileNotice(text, kind = "success") {
+        $("profilenotice").textContent = text;
+        $("profilenotice").className = "notice " + kind;
+        $("profilenotice").hidden = !text;
+      }
+      async function loadProfile() {
+        const p = await api("/api/profile", { profile: $("profile").value }),
+          editable = p.path !== "@live";
+        profileSha = p.sha || null;
+        originalYaml = p.yaml;
+        reviewedYaml = null;
+        $("yaml").value = p.yaml;
+        $("yaml").disabled = !editable;
+        $("validate").disabled = !editable;
+        $("discard").disabled = !editable;
+        $("save").disabled = true;
+        $("yamlsummary").textContent = editable
+          ? "Profile YAML"
+          : "Loaded handshake snapshot";
+        $("editorstate").textContent = editable ? "Saved file" : "Read-only";
+        $("editornote").textContent = editable
+          ? "Edit the YAML, validate its schema, review the diff, then save. The running agent is updated separately."
+          : "A handshake snapshot omits ROS topic bindings. Choose an original YAML file to edit.";
+        $("reviewstate").textContent = "No draft reviewed";
+        $("diffpanel").hidden = true;
+        $("fieldhint").hidden = true;
+        profileNotice("");
+      }
+      $("load-profile").onclick = () => $("profile-file").click();
+      $("profile-file").onchange = () =>
+        perform(async () => {
+          const file = $("profile-file").files[0];
+          if (!file) return;
+          $("load-profile").disabled = true;
+          try {
+            if (file.size > 256000) throw new Error("Choose a YAML profile under 256 KB.");
+            const r = await api("/api/profile/import", { yaml: await file.text() });
+            config.profiles = r.profiles;
+            $("profile").innerHTML =
+              '<option value="@live">Loaded agent · discover only</option>' +
+              config.profiles.map((p) =>
+                `<option value="${esc(p.id)}">${esc(p.robot)} / ${esc(p.name)}</option>`
+              ).join("");
+            $("profile").value = r.profile;
+            invalidate();
+            await loadProfile();
+            profileNotice(`Loaded ${file.name}. A local copy is saved for testing; the running agent is unchanged.`);
+          } finally {
+            $("profile-file").value = "";
+            $("load-profile").disabled = false;
+          }
+        });
+      $("profile").onchange = () => {
+        invalidate();
+        perform(loadProfile);
+      };
+      $("uri").oninput = invalidate;
+      $("inspect").onclick = () =>
+        perform(async () => {
+          const target = request();
+          $("inspect").disabled = true;
+          try {
+            const r = await api("/api/inspect", target);
+            if (
+              target.uri !== request().uri ||
+              target.profile !== request().profile
+            )
+              return;
+            const p = r.welcome.profile,
+              live = target.profile === "@live",
+              match =
+                live ||
+                (p.name === r.profile.data.name &&
+                  p.model === r.profile.data.model);
+            inspected = r.welcome;
+            $("connection").textContent = live
+              ? "Discovered"
+              : match
+                ? "Identity matches"
+                : "Different profile";
+            $("targetbutton").textContent =
+              `${p.name} · ${$("ack").checked ? "commands enabled" : "read checks"} · Robot profile`;
+            $("robotinfo").innerHTML =
+              `<div class="robotname">${esc(p.name)}</div><p class="small">${esc(p.model)} · version ${esc(p.version)}</p><div class="caps">${p.capabilities.map((c) => `<span>${esc(c)}</span>`).join("")}</div><p class="small">Cameras: ${esc((r.welcome.instances.cameras || []).join(", ") || "none")}</p>${Object.entries(
+                r.welcome.groups || {},
+              )
+                .map(
+                  ([name, g]) =>
+                    `<div class="groupcard"><strong>${esc(name)}</strong> · ${esc(g.kind)} · ${(g.joints || []).length} joints<div class="joints">${esc((g.joints || []).join(", "))}</div><span class="muted">${esc(g.tip ? "Tip: " + g.tip : "Joint-space group; no tip")}</span></div>`,
+                )
+                .join(
+                  "",
+                )}<p class="small" style="margin-top:12px">${live ? "Discovery uses the loaded agent. Select its original YAML for independent configuration checks." : match ? "The selected YAML has the same name/model. The profile tests check its version, capabilities, and bindings." : "Select the YAML actually loaded by this agent before running checks."}</p>`;
+            if (match) await loadSettings();
+            if (live) {
+              $("yaml").value = r.profile.yaml;
+              originalYaml = r.profile.yaml;
+            }
+          } finally {
+            $("inspect").disabled = false;
+          }
+        });
+      $("ack").onchange = () => {
+        if (inspected)
+          $("targetbutton").textContent =
+            `${inspected.profile.name} · ${$("ack").checked ? "commands enabled" : "read checks"} · Robot profile`;
+        selectionChanged();
+      };
+      $("yaml").oninput = () => {
+        reviewedYaml = null;
+        $("save").disabled = true;
+        $("editorstate").textContent =
+          $("yaml").value === originalYaml ? "Saved file" : "Unsaved draft";
+        $("reviewstate").textContent = "Validate this draft before saving";
+        $("diffpanel").hidden = true;
+        profileNotice("");
+      };
+      $("discard").onclick = () => perform(loadProfile);
+      $("validate").onclick = () =>
+        perform(async () => {
+          const target = $("profile").value,
+            draft = $("yaml").value;
+          $("validate").disabled = true;
+          try {
+            const r = await api("/api/profile/validate", {
+              profile: target,
+              yaml: draft,
+            });
+            if (target !== $("profile").value || draft !== $("yaml").value)
+              return;
+            reviewedYaml = draft;
+            $("save").disabled = !r.changed;
+            $("reviewstate").textContent = r.changed
+              ? "Schema valid · review the changes"
+              : "Schema valid · unchanged";
+            $("diff").textContent = r.diff || "No changes.";
+            $("diffpanel").hidden = !r.changed;
+            $("diffpanel").open = r.changed;
+            profileNotice(r.note);
+          } catch (e) {
+            profileNotice(e.message, "error");
+          } finally {
+            $("validate").disabled = $("profile").value === "@live";
+          }
+        });
+      $("save").onclick = () =>
+        perform(async () => {
+          if (reviewedYaml !== $("yaml").value)
+            throw Error("Validate and review this draft before saving.");
+          const target = $("profile").value,
+            draft = reviewedYaml;
+          $("save").disabled = true;
+          const r = await api("/api/profile/save", {
+            profile: target,
+            yaml: draft,
+            expected_sha: profileSha,
+          });
+          if (target !== $("profile").value) return;
+          profileSha = r.sha;
+          originalYaml = draft;
+          reviewedYaml = null;
+          $("editorstate").textContent = "Saved file";
+          $("reviewstate").textContent =
+            "Saved · reload agent before retesting";
+          profileNotice(r.note + (r.backup ? "\nBackup: " + r.backup : ""));
+          invalidate();
+        });
+      function focusProfileField(field, c) {
+        switchView("profile");
+        const file = mode === "results" ? snapshot?.profile : null;
+        if (
+          file &&
+          config.profiles.some((p) => p.id === file) &&
+          $("profile").value !== file
+        ) {
+          $("profile").value = file;
+          invalidate();
+          perform(async () => {
+            await loadProfile();
+            showField(field, c);
+          });
+        } else showField(field, c);
+      }
+      function showField(field, c) {
+        const instance =
+          c?.parameters?.group_name ||
+          c?.parameters?.camera_name ||
+          c?.instance;
+        const path = instance ? field.replace("*", instance) : field;
+        $("fieldhint").hidden = false;
+        $("fieldhint").textContent =
+          `Review ${path}. ${$("profile").value === "@live" ? "Select the original YAML before editing." : "After a valid change, reload the agent and rerun the related category."}`;
+        const leaf = field.split(".").pop(),
+          text = $("yaml").value,
+          match = new RegExp(
+            "^[ \\t]*" + leaf.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ":",
+            "m",
+          ).exec(text);
+        if (match) {
+          $("yaml").focus();
+          $("yaml").setSelectionRange(
+            match.index,
+            match.index + match[0].length,
+          );
+          const line = text.slice(0, match.index).split("\n").length;
+          $("yaml").scrollTop = Math.max(0, (line - 4) * 21.6);
+        }
+      }
+      async function startRun(check = null) {
+        busy = true;
+        updateButtons();
+        try {
+          const data = request();
+          if (check) {
+            data.categories = [];
+            data.checks = [check];
+          }
+          const result = await api("/api/run", data);
+          runId = result.id;
+          active = runId;
+          expanded.clear();
+          switchView("tests");
+          setMode("results");
+          await poll();
+        } finally {
+          busy = false;
+          updateButtons();
+        }
+      }
+      $("run").onclick = () => perform(() => startRun());
+      $("cancel").onclick = () =>
+        perform(async () => {
+          await api("/api/cancel");
+          $("cancel").disabled = true;
+          $("runstate").textContent = "Cancelling tests…";
+        });
+      function updateButtons() {
+        $("run").disabled = busy || !!active || !selectedGuides().length;
+        $("cancel").disabled = !active;
+      }
+      function shortWhat(text) {
+        return text.length > 185
+          ? text.slice(0, 182).replace(/\s+\S*$/, "") + "…"
+          : text;
+      }
+      function status(c) {
+        if (c.status === "guide")
+          return c.guide.scope === "sdk"
+            ? "Offline"
+            : c.guide.requires_motion
+              ? "Commands"
+              : "Read";
+        if (c.status === "skipped")
+          return c.coverage === "not_applicable" ? "N/A" : "Untested";
+        return c.status === "not run"
+          ? "Not run"
+          : c.status[0].toUpperCase() + c.status.slice(1);
+      }
+      function resultText(c) {
+        if (c.status === "guide") return "";
+        if (c.status === "passed")
+          return "Passed the assertions described below.";
+        if (c.status === "failed" || c.status === "error")
+          return "This check failed. Use the guidance below and expand technical details to see the assertion and reported values.";
+        if (c.status === "pending") return "Waiting to run.";
+        if (c.status === "running") return "Running this check.";
+        if (c.status === "not run")
+          return "The runner ended before this check completed.";
+        const reason = (c.detail || "").match(
+          /(?:NOT APPLICABLE|NOT CONFIGURED|DISABLED):\s*(.*)/,
+        );
+        return reason
+          ? reason[1].replace(/["']\)?\s*$/, "")
+          : c.detail || "This check was not exercised.";
+      }
+      function checkSettings(g, c) {
+        const needs = g.scenario_fields.length || (c.status === "skipped" && c.coverage !== "not_applicable");
+        return `<h4>Test requirements</h4>${g.scenario_fields.length ? `<div class="fields">${g.scenario_fields.map((f) => `<span class="fieldchip">${esc(f)}</span>`).join("")}</div>` : `<p>${needs ? "See configuration and runtime prerequisites." : "No additional test settings required."}</p>`}${needs ? `<button class="fieldlink" data-configure-requirement="${esc(c.nodeid)}">Configure requirements</button>` : ""}`;
+      }
+      function precisionResult(c) {
+        const p = c.properties || {};
+        if (!p["movement.tolerance_multiplier"]) return "";
+        const limits = Object.entries(p).filter(([key]) => key.startsWith("movement.effective.")).map(([key,value]) => {
+          const field = key.split(".").pop();
+          const label = {max_drift:"Spin drift", position_tolerance:"Loop closure", angle_tolerance:"Rotation error"}[field] || field;
+          return `${label}: ${Number(value).toFixed(3)} ${field === "angle_tolerance" ? "rad" : "m"}`;
+        });
+        return `<p class="small">Movement tolerance ${esc(p["movement.tolerance_multiplier"])}× · ${esc(limits.join(" · "))}</p>`;
+      }
+      function guideDetail(c) {
+        const g = c.guide;
+        if (!g)
+          return `<div class="guidebox"><p class="muted">The runner could not attach a source description to this setup/import error. Inspect its technical details.</p><pre class="technical">${esc(c.detail || "No details available.")}</pre></div>`;
+        const failed = ["failed", "error"].includes(c.status);
+        return `<div class="guidebox">${
+          Object.entries(c.properties || {}).some(([k]) =>
+            k.startsWith("measured."),
+          )
+            ? `<div class="measurements"><h4>Measured results</h4>${Object.entries(
+                c.properties,
+              )
+                .filter(([k]) => k.startsWith("measured."))
+                .map(
+                  ([k, v]) =>
+                    `<p><span>${esc(k.slice(9).replaceAll("_", " "))}</span><b>${esc(v)}</b></p>`,
+                )
+                .join("")}</div>`
+            : ""
+        }${c.status !== "guide" ? `<div class="resultline ${failed ? "failed" : c.status === "skipped" ? "skipped" : ""}">${esc(resultText(c))}</div>` : ""}${precisionResult(c)}<div class="explanation"><div class="wide"><h4>What it checks</h4><p>${esc(g.what)}</p></div><div><h4>Why it matters</h4><p>${esc(g.why)}</p></div><div><h4>Effect on the robot</h4><p>${esc(g.effects)}</p>${g.requires.length ? `<p style="margin-top:6px">Requires: ${esc(g.requires.join(", "))}.</p>` : ""}</div><div class="wide fix ${failed ? "failedfix" : ""}"><h4>If it fails</h4><p>${esc(g.fix)}</p></div><div><h4>Profile settings</h4>${g.profile_fields.length ? `<p>Open the relevant field in Robot profile.</p><div class="fields">${g.profile_fields.map((f) => `<button class="fieldlink" data-field="${esc(f)}" data-node="${esc(c.nodeid)}">${esc(f)}</button>`).join("")}</div>` : "<p>This check has no direct profile setting to adjust. Follow the diagnostic guidance above.</p>"}</div><div>${checkSettings(g, c)}</div></div><div class="guidefooter"><p class="small">${g.scope === "sdk" ? "Runs offline using synthetic fixtures." : g.requires_motion ? "Requires commands enabled." : "Available with read checks."}${c.instance ? " Instance: " + esc(c.instance) + "." : ""}</p><button class="button" data-check="${esc(g.id)}" ${active ? "disabled" : ""}>Run this check</button></div><details><summary>Technical details</summary><pre class="technical">${esc(c.nodeid)}\n${esc(c.detail || "No error output.")}${c.related_checks?.length > 1 ? "\nGrouped checks:\n" + esc(c.related_checks.join("\n")) : ""}\nSource: ${esc(g.source)}:${g.line}</pre></details></div>`;
+      }
+      function visibleCases() {
+        if (mode === "guide")
+          return selectedGuides().map((g) => ({
+            nodeid: g.id,
+            guide: g,
+            status: "guide",
+            duration: 0,
+            instance: "",
+          }));
+        return snapshot?.display_cases || snapshot?.cases || [];
+      }
+      function drawCases() {
+        if (!config) return;
+        document
+          .querySelectorAll("[data-result]")
+          .forEach((card) =>
+            card.setAttribute(
+              "aria-pressed",
+              String(card.dataset.result === $("filter").value),
+            ),
+          );
+        const q = $("search").value.toLowerCase(),
+          filter = $("filter").value,
+          category = $("categoryfilter").value;
+        const cases = visibleCases().filter((c) => {
+          const g = c.guide,
+            text = [
+              c.nodeid,
+              c.instance,
+              g?.title,
+              g?.what,
+              g?.why,
+              g?.fix,
+              ...(g?.profile_fields || []),
+              ...(g?.scenario_fields || []),
+            ]
+              .join(" ")
+              .toLowerCase();
+          return (
+            text.includes(q) &&
+            (category === "all" || g?.categories.includes(category)) &&
+            (mode === "guide" ||
+              filter === "all" ||
+              (filter === "failures"
+                ? ["failed", "error"].includes(c.status)
+                : filter === "pending"
+                  ? ["pending", "running", "not run"].includes(c.status)
+                  : filter === "notapplicable"
+                    ? c.coverage === "not_applicable"
+                    : filter === "untested"
+                      ? c.status === "skipped" &&
+                        c.coverage !== "not_applicable"
+                      : c.status === filter))
+          );
+        });
+        const signature = JSON.stringify([mode, active, [...expanded], cases]);
+        if (signature === casesSignature) return;
+        casesSignature = signature;
+        $("table").hidden = !cases.length;
+        $("empty").hidden = !!cases.length;
+        if (!cases.length)
+          $("empty").innerHTML =
+            `<strong>${mode === "results" && !snapshot ? "No run selected" : "No matching checks"}</strong><p>${mode === "results" && !snapshot ? "Run a category or open a previous run." : "Select a category or change the search and result filters."}</p>`;
+        $("cases").innerHTML = cases
+          .map((c) => {
+            const g = c.guide,
+              title = g?.title || c.nodeid.split("::").pop(),
+              cls =
+                c.status === "guide"
+                  ? "guide-status" + (g?.requires_motion ? " optin" : "")
+                  : c.status.replace(" ", "-");
+            return `<tr class="test" data-node="${esc(c.nodeid)}" tabindex="0" aria-expanded="${expanded.has(c.nodeid)}"><td class="${cls}">${esc(status(c))}</td><td><span class="testname">${esc(title)}${c.instance && c.instance !== "None" ? `<span class="instance">${esc(c.instance)}</span>` : ""}</span>${g ? `<span class="summary">${esc(shortWhat(g.what))}</span><span class="tags">${g.categories.map((cat) => `<span class="tag">${esc(categoryLabel(cat))}</span>`).join("")}</span>` : ""}</td><td>${mode === "guide" ? "↗" : c.duration.toFixed(2) + "s"}</td></tr>${expanded.has(c.nodeid) ? `<tr class="detail"><td colspan="3">${guideDetail(c)}</td></tr>` : ""}`;
+          })
+          .join("");
+      }
+      $("cases").onclick = (e) => {
+        const requirement = e.target.closest("[data-configure-requirement]");
+        if (requirement) {
+          const c = visibleCases().find((c) => c.nodeid === requirement.dataset.configureRequirement);
+          perform(async () => {
+            switchView("config", false);
+            await loadSettings();
+            const name = c?.parameters?.group_name || (settingsMeta?.groups.some((g)=>g.name === c?.instance) ? c.instance : null);
+            const fn = c?.guide?.function || "";
+            const action = c?.parameters?.action_name;
+            const id = name ? groupRequirementId(name) : action ? "requirements-action-" + encodeURIComponent(action) : /connect_tcp/.test(fn) ? "requirements-connection" : /snapshot|reach_map/.test(fn) ? "requirements-artifacts" : /watch/.test(fn) ? "requirements-watch" : /republishing/.test(fn) ? "requirements-description" : /navigation|navigate/.test(fn) ? "requirements-navigation" : /map_save/.test(fn) ? "requirements-mapping" : "requirements-runtime";
+            const card = document.getElementById(id);
+            if (card) { const details = card.querySelector("details"); if (details) details.open=true; card.scrollIntoView({block:"start",behavior:"smooth"}); }
+          });
+          return;
+        }
+        const field = e.target.closest("[data-field]");
+        if (field) {
+          const c = visibleCases().find((c) => c.nodeid === field.dataset.node);
+          focusProfileField(field.dataset.field, c);
+          return;
+        }
+        const check = e.target.closest("[data-check]");
+        if (check) {
+          perform(() => startRun(check.dataset.check));
+          return;
+        }
+        if (e.target.closest("summary,details,button,a")) return;
+        const row = e.target.closest("tr.test");
+        if (row) {
+          expanded.has(row.dataset.node)
+            ? expanded.delete(row.dataset.node)
+            : expanded.add(row.dataset.node);
+          drawCases();
+        }
+      };
+      $("cases").onkeydown = (e) => {
+        if (e.target.matches("tr.test") && ["Enter", " "].includes(e.key)) {
+          e.preventDefault();
+          e.target.click();
+        }
+      };
+      $("search").oninput = drawCases;
+      $("filter").onchange = drawCases;
+      $("categoryfilter").onchange = drawCases;
+      function drawRunningTest() {
+        const s = snapshot;
+        const visible = mode === "results" && s?.status === "running";
+        $("runningtest").hidden = !visible;
+        if (!visible) return;
+        const c = s.cases.find((c) => c.nodeid === s.current);
+        $("livephase").textContent = c ? "Running now" : "Preparing tests";
+        $("livetitle").textContent =
+          c?.guide?.title ||
+          (s.current
+            ? s.current.split("::").pop()
+            : "Discovering robot interfaces and collecting checks");
+        $("liveinstance").textContent = c?.instance
+          ? "Instance: " + c.instance
+          : "";
+        $("livewhat").textContent =
+          c?.guide?.what || "Waiting for the runner to start the next check.";
+        $("liveeffects").textContent = c?.guide?.effects
+          ? "Robot effect: " + c.guide.effects
+          : "";
+        const completed = s.cases.filter((c) =>
+          ["passed", "failed", "error", "skipped"].includes(c.status),
+        ).length;
+        $("liveprogress").max = Math.max(1, s.cases.length);
+        $("liveprogress").value = completed;
+        $("livecount").textContent =
+          `${completed} of ${s.cases.length} checks completed`;
+        $("showcurrent").hidden = !c;
+      }
+      $("showcurrent").onclick = () => {
+        const c = snapshot?.cases.find((c) => c.nodeid === snapshot.current);
+        if (!c) return;
+        chooseCategory(c.guide?.categories[0] || "all");
+        $("search").value = "";
+        $("filter").value = "all";
+        expanded.add(c.nodeid);
+        drawCases();
+        [...$("cases").querySelectorAll("tr.test")]
+          .find((row) => row.dataset.node === c.nodeid)
+          ?.scrollIntoView({ block: "center", behavior: "smooth" });
+      };
+      $("stats").onclick = (e) => {
+        const card = e.target.closest("[data-result]");
+        if (!card) return;
+        $("filter").value =
+          $("filter").value === card.dataset.result
+            ? "all"
+            : card.dataset.result;
+        drawCases();
+      };
+      function draw() {
+        if (mode === "guide") {
+          $("runstate").textContent = "Test guide";
+          $("runmeta").textContent =
+            "Select a check to read its purpose, requirements, and failure guidance.";
+          $("runstate").className = "";
+          $("librarynote").textContent =
+            "Robot compatibility checks the advertised interfaces and measured behavior. Qualification, diagnostics and software regressions are separate suites.";
+        } else if (snapshot) {
+          const s = snapshot,
+            counts = { passed: 0, failed: 0, notapplicable: 0, untested: 0 },
+            scope = ["sdk", "missions"].includes($("suite").value) ? $("suite").value : s.cases.some((c) => c.guide?.scope === "robot") ? "robot" : s.cases.some((c) => c.guide?.scope === "sdk") ? "sdk" : "missions";
+          const counted = s.cases.filter((c) => (c.guide?.scope || "robot") === scope);
+          const offline = s.cases.filter((c) => c.guide?.scope === "sdk");
+          let completed = 0;
+          for (const c of counted) {
+            if (c.status === "passed") counts.passed++;
+            if (["failed", "error"].includes(c.status)) counts.failed++;
+            if (c.status === "skipped") {
+              c.coverage === "not_applicable"
+                ? counts.notapplicable++
+                : counts.untested++;
+            }
+            if (["passed", "failed", "error", "skipped"].includes(c.status))
+              completed++;
+          }
+          counts.notapplicable = (s.display_cases || counted).filter((c) => c.status === "skipped" && c.coverage === "not_applicable" && (c.guide?.scope || "robot") === scope).length;
+          for (const k of Object.keys(counts)) $(k).textContent = counts[k];
+          $("completed").textContent =
+            `${completed}/${counted.length} ${scope === "missions" ? "offline mission" : scope === "sdk" ? "offline platform" : "live robot"} checks completed`;
+          $("elapsed").textContent =
+            `${Math.round((s.finished || Date.now() / 1000) - s.started)}s`;
+          $("runstate").textContent =
+            s.status === "running"
+              ? "Running tests"
+              : s.status[0].toUpperCase() + s.status.slice(1);
+          $("runstate").className = s.status;
+          $("runmeta").textContent =
+            `${s.welcome?.profile?.name || "Offline checks"} · ${new Date(s.started * 1000).toLocaleString()}${s.motion_enabled ? " · commands enabled" : " · read checks"}`;
+          $("current").textContent = s.current
+            ? "· " +
+              (s.cases.find((c) => c.nodeid === s.current)?.guide?.title ||
+                s.current.split("::").pop())
+            : "";
+          $("log").textContent = s.log || "Waiting for runner output.";
+          $("artifacts").innerHTML =
+            `<a href="/api/runs/${s.id}/output.log" target="_blank" rel="noopener">Log ↗</a>${s.status !== "running" ? `<a href="/api/runs/${s.id}/results.xml" target="_blank" rel="noopener">JUnit ↗</a>` : ""}`;
+          $("librarynote").textContent = counts.untested
+            ? `${counts.untested} checks are untested: expand them to see the missing scenario, dependency, or opt-in. ${counts.notapplicable} unsupported feature groups are listed once per instance.`
+            : "Expand a result for its explanation and configuration guidance.";
+          if (scope === "robot" && offline.length) {
+            $("librarynote").textContent += ` Offline SDK: ${offline.filter((c) => c.status === "passed").length} passed, ${offline.filter((c) => ["failed", "error"].includes(c.status)).length} failed; excluded from robot totals.`;
+          }
+          $("categoryprogress").innerHTML = config.categories
+            .map((cat) => {
+              const checks = s.cases.filter((c) =>
+                c.guide?.categories.includes(cat.id),
+              );
+              if (!checks.length) return "";
+              const failed = checks.filter((c) =>
+                ["failed", "error"].includes(c.status),
+              ).length;
+              return `<button class="categorypill" data-category="${cat.id}">${esc(cat.label)} · ${checks.length}${failed ? `<span class="failed">${failed} failed</span>` : ""}</button>`;
+            })
+            .join("");
+        } else {
+          $("runstate").textContent = "Results";
+          $("runmeta").textContent = "Run a category or open a saved run.";
+          $("librarynote").textContent = "";
+        }
+        drawRunningTest();
+        drawCases();
+      }
+      $("categoryprogress").onclick = (e) => {
+        const b = e.target.closest("[data-category]");
+        if (b) {
+          chooseCategory(b.dataset.category);
+        }
+      };
+      function historyCategories(r) {
+        if (r.categories?.length)
+          return r.categories.map(categoryLabel).join(", ");
+        if (r.suites?.length) {
+          const source = new Set(r.suites),
+            cats = new Set();
+          for (const g of config.tests) {
+            if (
+              source.has(
+                ["sdk", "missions"].includes(g.scope)
+                  ? g.scope
+                  : g.source.split("/").pop().replace(".py", ""),
+              )
+            )
+              g.categories.forEach((c) => cats.add(c));
+          }
+          return [...cats].map(categoryLabel).join(", ") || "Individual checks";
+        }
+        return "Individual checks";
+      }
+      function drawHistory() {
+        $("historycount").textContent = `${runs.length} runs`;
+        $("history").innerHTML =
+          runs
+            .map(
+              (r) =>
+                `<tr><td class="date">${esc(new Date(r.started * 1000).toLocaleString())}</td><td>${esc(r.robot || "Saved target")}</td><td>${esc(historyCategories(r))}</td><td><span class="status ${esc(r.status)}">${esc(r.status[0].toUpperCase() + r.status.slice(1))}</span>${r.scope_counts ? `<div class="small muted">Robot: ${r.scope_counts.robot.passed} passed · ${r.scope_counts.robot.failed + r.scope_counts.robot.error} failed · ${r.scope_counts.robot.untested} untested</div><div class="small muted">Platform offline: ${r.scope_counts.sdk.passed} passed · ${r.scope_counts.sdk.failed + r.scope_counts.sdk.error} failed</div>${r.scope_counts.missions ? `<div class="small muted">Missions: ${r.scope_counts.missions.passed} passed · ${r.scope_counts.missions.failed + r.scope_counts.missions.error} failed</div>` : ""}` : ""}</td><td><button class="button" data-run="${r.id}">Open results</button></td></tr>`,
+            )
+            .join("") || '<tr><td colspan="5">No saved runs yet.</td></tr>';
+      }
+      $("history").onclick = (e) => {
+        const b = e.target.closest("[data-run]");
+        if (b) {
+          runId = b.dataset.run;
+          expanded.clear();
+          $("search").value = "";
+          $("filter").value = "all";
+          chooseCategory("all");
+          switchView("tests");
+          setMode("results");
+          perform(poll);
+        }
+      };
+      async function poll() {
+        if (polling) return;
+        polling = true;
+        try {
+          const r = await api("/api/runs");
+          active = r.active;
+          runs = r.runs;
+          if (!runId) runId = active || runs[0]?.id;
+          if (active && mode === "guide" && !snapshot) {
+            mode = "results";
+            setMode("results");
+          }
+          drawHistory();
+          if (runId) {
+            const id = runId,
+              value = await api("/api/runs/" + id);
+            if (id === runId) {
+              snapshot = value;
+              if (mode === "results") {
+                $("stats").hidden = false;
+                $("categoryprogress").hidden = false;
+                $("outputpanel").hidden = false;
+                draw();
+              }
+            }
+          }
+          updateButtons();
+        } finally {
+          polling = false;
+        }
+      }
+      installRequirementHandlers();
+      installPreparationHandlers();
+      (async () => {
+        try {
+          config = await api("/api/config");
+          $("suite").innerHTML = config.test_suites.map((s) => `<option value="${esc(s.id)}">${esc(s.label)}</option>`).join("");
+          renderSuiteSidebar();
+          initialSettings();
+          $("profile").innerHTML =
+            '<option value="@live" selected>Loaded agent · discover only</option>' +
+            config.profiles
+              .map(
+                (p) =>
+                  `<option value="${esc(p.id)}">${esc(p.robot)} / ${esc(p.name)}</option>`,
+              )
+              .join("");
+          $("categories").innerHTML = [
+            { id: "all", label: "All tests", count: config.tests.length },
+            ...config.categories,
+          ]
+            .map(
+              (c) =>
+                `<button class="category" id="category-${c.id}" role="tab" aria-controls="test-content" aria-selected="${c.id === selectedCategory}" tabindex="${c.id === selectedCategory ? 0 : -1}" data-category="${c.id}">${icon(c.id)}<span>${esc(c.label)}</span><span class="count">${c.count}</span></button>`,
+            )
+            .join("");
+          document
+            .querySelectorAll("[data-icon]")
+            .forEach((el) => (el.innerHTML = icon(el.dataset.icon)));
+          $("categoryfilter").innerHTML =
+            '<option value="all">All categories</option>' +
+            config.categories
+              .map((c) => `<option value="${c.id}">${esc(c.label)}</option>`)
+              .join("");
+          selectionChanged();
+          await loadProfile();
+          await poll();
+          draw();
+          setInterval(
+            () =>
+              poll().catch((e) =>
+                message("Console connection lost: " + e.message),
+              ),
+            1500,
+          );
+        } catch (e) {
+          message(e.message);
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ringfour-testing"
+version = "0.1.0.dev0"
+requires-python = ">=3.10"
+dependencies = ["ringfour-sdk==0.1.0.dev0", "pytest>=7", "pyyaml>=6"]
+
+[tool.setuptools]
+packages = []
+
+[tool.pytest.ini_options]
+testpaths = ["platform_tests", "integration/dashboard/tests"]
+markers = [
+  "contract: deterministic platform contract", "protocol: isolated wire protocol",
+  "integration: explicitly selected robot integration", "hardware: explicitly selected hardware",
+  "sim: explicitly selected simulator integration",
+]

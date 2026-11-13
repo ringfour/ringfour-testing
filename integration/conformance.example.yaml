@@ -1,0 +1,108 @@
+# Template: replace identity, names, targets and measured tolerances with
+# independently reviewed facts for YOUR robot/environment before enabling motion.
+# This deliberately does not match any shipped robot.
+version: 1
+profile:
+  name: your-robot
+  model: your-robot-model
+  # version: "1"
+  # description_sha: sha256-of-the-loaded-description
+
+groups:
+  your-group:
+    dt: 3.0
+    settle: 0.5
+    tolerance: 0.01  # joint units: radians or metres
+    waypoints:
+      - {your-joint-1: 0.1, your-joint-2: 0.2}
+      - {your-joint-1: 0.0, your-joint-2: 0.0}
+    # allow_sessions: true
+    # tool: {settle: 1.0, tolerance: 0.01}
+    # blocked_target is only for a known object contact inside live limits.
+    # clear_configurations:
+    #   - {your-joint-1: 0.0, your-joint-2: 0.0}
+    # collision_configurations:
+    #   - {your-joint-1: 0.8, your-joint-2: 1.0}
+    # max_check_seconds: 0.05
+
+# Existing SDK teleop axes. No takeoff, altitude, or balance is implied.
+# teleop:
+#   command: {linear: 0.1, angular: 0.0}
+#   duration: 1.0
+#   watchdog: 0.3
+#   min_distance: 0.05
+#   stop_speed: 0.02
+#   halt_timeout: 3.0
+#   watch_stop: {path: velocity.linear.x, above: 0.05}
+
+# navigation:
+#   goals:
+#     - {x: 1.0, y: 2.0, z: 0.0, frame: your-navigation-frame}
+#   unreachable_goals:
+#     - {x: 99.0, y: 99.0, z: 0.0, frame: your-navigation-frame}
+#   timeout: 120
+#   tolerance: 0.1
+#   min_distance: 0.05
+#   halt_timeout: 10
+
+# mapping: {save_localize: true}
+# debug: true
+# tolerances:
+#   joint_limits: {your-joint-1: 0.0001}  # independently measured allowance
+#   fk_position: 0.00001                # metres
+#   fk_quaternion: 0.00001              # |dot(q_fk, q_tf)| error
+
+# Optional model rebuild path, with explicit commands owned by this robot stack.
+# Both commands are argv lists, executed without a shell; restore is mandatory.
+# description_change:
+#   command: [python3, /path/to/your/stack/change_description.py]
+#   restore_command: [python3, /path/to/your/stack/restore_description.py]
+#   timeout: 60
+
+# Selectable movement profiles from the console. Values below are illustrative;
+# review for the robot, surface, available space, and measured acceptance limits.
+# movement_profiles:
+#   braking:
+#     linear: 0.1
+#     duration: 1.0
+#     min_distance: 0.03
+#     max_braking_time: 1.0
+#     max_braking_distance: 0.1
+#     watchdog: 0.3
+#     stop_speed: 0.02
+#     stop_angular_speed: 0.02
+#     halt_timeout: 3.0
+
+# Optional portable execution faults, enabled separately per reviewed group:
+# groups:
+#   your-group:
+#     hardening:
+#       lease_expiry: true
+#       client_death: true
+#       feedback_loss:
+#         reviewed: true
+#         command: [your-fixture-tool, disable-feedback]
+#         restore_command: [your-fixture-tool, enable-feedback]
+#         recovery_command: [python3, /path/to/helpers/recover_resource.py,
+#                            unix:///your/local-agent.sock, '{resource}']
+#         timeout: 30
+# `debug: true` is required for feedback injection. Commands are argv arrays,
+# never interpreted by a shared shell. Only the robot fixture names processes,
+# controllers and local recovery transport. Missing prerequisites are untested.
+
+# Explicit agent lifecycle/fault fixtures. Review and adapt these argv lists for
+# your deployment; these checks are unavailable until you configure them.
+# debug: true
+# lifecycle:
+#   reviewed: true
+#   timeout: 60
+#   # Append prepare/verify; verify reads the prepare record as JSON on stdin.
+#   probe_command: [your-local-runner, python3, journal_restart_probe.py, unix:///your/agent.sock]
+#   restart_command: [your-agent-only-lifecycle-runner, restart]
+# mobility_fault:
+#   reviewed: true
+#   timeout: 10
+#   watchdog: 0.3
+#   command: {angular: 0.04}
+#   setup_command: [your-input-isolation-helper, select-testing-input]
+#   restore_command: [your-input-isolation-helper, restore-default-input]

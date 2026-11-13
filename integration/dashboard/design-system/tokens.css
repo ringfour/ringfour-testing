@@ -1,0 +1,36 @@
+/* Ringfour: neutral surfaces, functional accents, restrained elevation. */
+@font-face{font-family:'Space Grotesk';src:url('assets/fonts/SpaceGrotesk-Regular.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:'Space Grotesk';src:url('assets/fonts/SpaceGrotesk-Medium.woff2') format('woff2');font-style:normal;font-weight:500;font-display:swap}
+@font-face{font-family:'Space Grotesk';src:url('assets/fonts/SpaceGrotesk-Bold.woff2') format('woff2');font-style:normal;font-weight:700;font-display:swap}
+:root{
+ color-scheme:light;
+ --graphite:#0B1114;--bone:#F5F5F5;--paper:#EEEEEE;--white:#FFFFFF;--steel:#8A9096;--mist:#E3E5E8;
+ --teal:#36B5A0;--orange:#E47A00;--signal:var(--orange);
+ --color-bg:var(--bone);--color-surface:var(--white);--color-inset:var(--paper);
+ --color-text:var(--graphite);--color-muted:#606060;--color-line:#DDDDDD;--color-field-border:#858585;
+ --color-rule:var(--color-text);--color-strong:var(--graphite);--color-on-strong:var(--bone);
+ --color-table:#FFFFFF;--color-table-hover:#F3F3F3;
+ --color-accent:var(--orange);--color-on-accent:var(--graphite);--color-operate:var(--orange);--color-ready:var(--teal);
+ --color-accent-text:#984D00;--color-ready-text:#087261;--color-info:var(--color-accent-text);--color-success:var(--color-ready-text);--color-warning:#984D00;--color-danger:#B23A2A;
+ --color-accent-soft:#FAEFE3;--color-ready-soft:#EAF4F0;--color-operate-soft:#FAEFE3;
+ --gradient-start:#9568F5;--gradient-end:var(--orange);
+ --gradient-signal:linear-gradient(90deg,var(--gradient-start) 0%,var(--gradient-end) 100%);
+ --font-sans:'Inter','Helvetica Neue',Arial,sans-serif;--font-heading:var(--font-sans);--font-accent:'Space Grotesk',var(--font-sans);--font-detail:'Doto',var(--font-mono);--font-mono:'SFMono-Regular',Consolas,'Liberation Mono',monospace;
+ --text-xs:.8125rem;--text-sm:1rem;--text-base:1.0625rem;--text-lg:1.25rem;
+ --text-title:clamp(2.5rem,5vw,4.75rem);--text-display:clamp(3.5rem,7.5vw,7.5rem);--weight-display:800;--weight-heading:650;
+ --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-6:1.5rem;--space-8:2rem;--space-12:3rem;--space-16:4rem;--space-24:6rem;
+ --radius:4px;--radius-action:6px;--radius-panel:0px;--radius-dialog:8px;--radius-table:0px;--radius-pill:999px;--border:1px solid var(--color-line);
+ --duration:150ms;--ease:cubic-bezier(.2,.7,.3,1);--content-width:1440px;
+ --elevation-0:none;--elevation-1:0 1px 3px #0000000F,0 1px 2px #00000008;--elevation-2:0 3px 12px #00000014;--elevation-3:0 12px 36px #00000033;
+ /* Compatibility for existing specimen utility classes. */
+ --shadow-raised:var(--elevation-1);--shadow-inset:none;--shadow-deep:none;--shadow-tactile:none;--shadow-overlay:var(--elevation-3);--shadow-press:none;
+}
+[data-theme="dark"]{
+ color-scheme:dark;--border:1px solid var(--color-line);--color-bg:#080808;--color-surface:#111111;--color-inset:#191919;
+ --color-table:#111111;--color-table-hover:#191919;--color-text:var(--bone);--color-muted:#B8B8B8;--color-line:#2B2B2B;--color-field-border:#808080;
+ --color-strong:var(--bone);--color-on-strong:var(--graphite);
+ --color-accent-text:#FFB15A;--color-ready-text:#66D6C0;--color-info:var(--color-accent-text);--color-success:var(--color-ready-text);--color-warning:#FFB15A;--color-danger:#F39788;
+ --color-accent-soft:#2B1C12;--color-ready-soft:#14271F;--color-operate-soft:#2B1C12;
+ --elevation-1:0 1px 4px #00000040;--elevation-2:0 4px 14px #0000004D;--elevation-3:0 14px 40px #00000080;
+ --shadow-raised:var(--elevation-1);--shadow-overlay:var(--elevation-3);
+}
